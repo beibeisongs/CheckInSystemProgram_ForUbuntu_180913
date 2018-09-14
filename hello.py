@@ -99,13 +99,15 @@ def upload():
         # log_file = open('/var/www/demoapp/log.txt', mode='a')
         # log_file.write("---shutil.move Ok !---")
 
+        IP = request.remote_addr
+
         """Face Extraction Part : 
         """
         dir = '/var/www/demoapp/Accounts'
 
         extractProcess(upload_file.filename, dir, class_name, name)
 
-        return 'hello, ' + name + ' class_name: ' + class_name + ' success'
+        return 'hello, ' + name + ' class_name: ' + class_name + 'IP : ' + IP + ' success'
     else:
         return 'hello, ' + request.form.get('name', 'little apple') + ' failed'
 
