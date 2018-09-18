@@ -93,7 +93,7 @@ def upload():
         class_name = request.form.get('class_name', 'little apple')
 
         sign_up_photo_path = dirpath + "/student_photo/" + str(upload_file.filename)
-        move_to_path = dirpath + "/Accounts/" + class_name + '/' + name
+        move_to_path = dirpath + "/Accounts/" + class_name + '/' + name + '/' + "OriJPG"
         shutil.move(sign_up_photo_path, move_to_path)
 
         # log_file = open('/var/www/demoapp/log.txt', mode='a')
@@ -125,6 +125,9 @@ def api_create_space(class_name, name):
         # Create the document storing CSV File, which used to recored customs' Travel coordinations
         new_csv_path = new_path + "/" + "coordinations"
         os.makedirs(new_csv_path)
+
+        new_orijpg_path = new_path + "/" + "OriJPG"
+        os.makedirs(new_orijpg_path)
 
         return name + "'s space has been created !"
     else:
