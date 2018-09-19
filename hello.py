@@ -4,12 +4,15 @@
 
 
 from extractMaxFace import extractProcess
+import dlib
 from flask import Flask, url_for
 from flask import request
 import shutil
 
 from werkzeug.utils import secure_filename
 import os
+
+from werkzeug.contrib.cache import SimpleCache
 
 
 app = Flask(__name__)
@@ -29,6 +32,44 @@ if os.path.exists(recogAssist_Dir) == False:
     os.makedirs(recogAssist_Dir)
 
 os.system("python /var/www/demoapp/Try_Function_2.py")
+
+
+def prepare_detector(predictor_path, face_rec_model_path):
+    file = open("/var/www/demoapp/show_hello_running.txt", 'a')
+    file.write("Prepare_detector !\n")
+
+    # 加载正脸检测器
+    detector = dlib.get_frontal_face_detector()
+    file.write("detector prepared !\n")
+
+    # 加载人脸关键点检测器
+    sp = dlib.shape_predictor(predictor_path)
+    file.write("sp prepared !\n")
+
+    # 加载人脸识别模型
+    facerec = dlib.face_recognition_model_v1(face_rec_model_path)
+    file.write("facerec prepared !\n")
+
+    file.close()
+    return detector, sp, facerec
+
+
+def prepare_path_etc():
+    # 人脸关键点检测器
+    predictor_path = "/var/www/demoapp/shape_predictor_68_face_landmarks.dat"
+    # 人脸识别模型：
+    face_rec_model_path = "/var/www/demoapp/dlib_face_recognition_resnet_model_v1.dat"
+
+    return predictor_path, face_rec_model_path
+
+
+predictor_path, face_rec_model_path = prepare_path_etc()
+detector, sp, facerec = prepare_detector(predictor_path, face_rec_model_path)
+
+cache = SimpleCache()
+cache.set("detector", detector)
+cache.set("sp", sp)
+cache.set("facerec", facerec)
 
 
 # Method One: curl http://127.0.0.1:5000/hello?name=dongzheng
@@ -136,7 +177,23 @@ def checkin_upload():
         Now stipulate that Only Two Photos will be uploaded
     :return:
     """
-    pass
+
+    detector_forcheckin = cache.get('detector')
+    sp_forcheckin = cache.get('sp')
+    facerec_forcheckin = cache.get('facerec')
+
+    dirpath = '/var/www/demoapp'
+
+    upload_file = request.files['image01']
+
+    if upload_file and allowed_file(upload_file.filename):
+        filename = secure_filename(upload_file.filename)
+        upload_file.save(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename))
+
+        name = request.form.get('name', 'little apple')
+        class_name = request.form.get('class_name', 'little apple')
+
+    return "checkin upload tested !"
 
 
 """Sample:
@@ -144,6 +201,7 @@ def checkin_upload():
 """
 @app.route('/student/create_space/<class_name>/<name>')
 def api_create_space(class_name, name):
+
     new_path = "/var/www/demoapp/Accounts/" + class_name + "/" + name
 
     if os.path.exists(new_path) == False:
