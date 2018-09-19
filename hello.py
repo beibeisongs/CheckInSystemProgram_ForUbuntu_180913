@@ -8,8 +8,27 @@ from flask import Flask, url_for
 from flask import request
 import shutil
 
+from werkzeug.utils import secure_filename
+import os
+
 
 app = Flask(__name__)
+
+"""Descirption:
+    When the FaceRecognition_Script Running
+    We will use the document named CheckingAccounts
+    To store the Accounts that are going to Statistic the Matched Faces
+        Besides, we use name.txt to record the accounts' name
+        
+    When finishing Recognition Process
+        the related txt file will be deleted 
+"""
+recogAssist_Dir = "/var/www/demoapp/CheckingAccounts"
+
+if os.path.exists(recogAssist_Dir) == False:
+    os.makedirs(recogAssist_Dir)
+
+os.system("python /var/www/demoapp/Try_Function_2.py")
 
 
 # Method One: curl http://127.0.0.1:5000/hello?name=dongzheng
@@ -61,10 +80,6 @@ def api_echo():
         return "ECHO: DELETE"
 
 
-from werkzeug.utils import secure_filename
-import os
-
-
 # Method Four: see Client\__init__.py
 # app.config['UPLOAD_FOLDER'] = 'D:\\PyFlaskLearningProjects\\20180613_Test1\\static\\uploads'
 # The route below is used for Ubuntu, upside for Windows
@@ -96,8 +111,11 @@ def upload():
         move_to_path = dirpath + "/Accounts/" + class_name + '/' + name + '/' + "OriJPG"
         shutil.move(sign_up_photo_path, move_to_path)
 
-        # log_file = open('/var/www/demoapp/log.txt', mode='a')
-        # log_file.write("---shutil.move Ok !---")
+        """Description: the orders following are used to check if the scripts have been correctly executed
+        
+        >>>log_file = open('/var/www/demoapp/log.txt', mode='a')
+        >>>log_file.write("---shutil.move Ok !---")
+        """
 
         IP = request.remote_addr
 
@@ -110,6 +128,15 @@ def upload():
         return 'hello, ' + name + ' class_name: ' + class_name + 'IP : ' + IP + ' success'
     else:
         return 'hello, ' + request.form.get('name', 'little apple') + ' failed'
+
+
+@app.route('/checkin_photo_upload', methods=['POST'])
+def checkin_upload():
+    """Attention:
+        Now stipulate that Only Two Photos will be uploaded
+    :return:
+    """
+    pass
 
 
 """Sample:
@@ -135,7 +162,6 @@ def api_create_space(class_name, name):
 
 
 if __name__ == "__main__":
-
     # app.run(host='127.0.0.1', port=5001)
     # Below for Ubuntu, upside for Windows
     app.run(host='0.0.0.0', port=5001)
