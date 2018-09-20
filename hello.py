@@ -200,6 +200,8 @@ def checkin_upload():
 
         result = faceRecognzedProcess(detector_forcheckin, sp_forcheckin, facerec_forcheckin, dir_path, class_name, name, dirpath_forcheckin, upload_file.filename)
 
+        os.remove(dirpath_forcheckin + '/' + upload_file.filename)
+
     return result
 
 
