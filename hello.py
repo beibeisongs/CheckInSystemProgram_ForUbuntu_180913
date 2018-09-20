@@ -4,6 +4,8 @@
 
 
 from extractMaxFace import extractProcess
+from FaceRecognzedProcess import faceRecognzedProcess
+
 import dlib
 from flask import Flask, url_for
 from flask import request
@@ -177,12 +179,13 @@ def checkin_upload():
         Now stipulate that Only Two Photos will be uploaded
     :return:
     """
+    result = "This is the Original Value of the result !"
 
-    detector_forcheckin = cache.get('detector')
-    sp_forcheckin = cache.get('sp')
-    facerec_forcheckin = cache.get('facerec')
+    detector_forcheckin = detector
+    sp_forcheckin = sp
+    facerec_forcheckin = facerec
 
-    dirpath = '/var/www/demoapp'
+    dir_path = '/var/www/demoapp/Accounts'
 
     upload_file = request.files['image01']
 
@@ -193,7 +196,11 @@ def checkin_upload():
         name = request.form.get('name', 'little apple')
         class_name = request.form.get('class_name', 'little apple')
 
-    return "checkin upload tested !"
+        dirpath_forcheckin = "/var/www/demoapp/student_photo"
+
+        result = faceRecognzedProcess(detector_forcheckin, sp_forcheckin, facerec_forcheckin, dir_path, class_name, name, dirpath_forcheckin, upload_file.filename)
+
+    return result
 
 
 """Sample:
