@@ -5,12 +5,10 @@
 
 
 import dlib
-import json
 import numpy
-import os
 from skimage import io
-import threading
-import time
+
+from FaceRecognzedProcess import faceRecognzedProcess
 
 
 def Construct_Candidate(host_face_dirpath, host_face_jpgnames):
@@ -58,14 +56,18 @@ def Construct_Candidate(host_face_dirpath, host_face_jpgnames):
     return descriptors, link_jpgnames
 
 
-def FaceRecognition(dir_path, class_name, name):
+def FaceRecognition(dir_path, class_name, name, dirpath, filename):
     """
+
+    :param dirpath: "./"
+    :param filename: "kkk.jpg"
 
     :param dir_path: "./Accounts"
     :param class_name: "123456"
     :param name: "2171000718"
     :return:
     """
+
     host_face_dirpath = dir_path + '/' + class_name + '/' + name
     host_face_jpgname = class_name + '_' + name + "_signup_1.jpg"
 
@@ -75,15 +77,12 @@ def FaceRecognition(dir_path, class_name, name):
     descriptors, link_jpgnames = Construct_Candidate(host_face_dirpath, host_face_jpgnames)
 
     Recognzed_jpgnames = []
-    for dirpath, dirnames, filenames in os.walk(host_face_dirpath):
-        for filepath in filenames:
-            if filepath != host_face_jpgname:
-                Recognzed_jpgnames.append(filepath)
+    Recognzed_jpgnames.append(filename)
 
     Recognzeds_length = len(Recognzed_jpgnames)
 
     # 这里的描述子列表：descriptors2 储存的是签到时视频帧提取的jpg文件名，是用来得到与host 的匹配度的
-    descriptors2, link_jpgnames2 = Construct_Candidate(host_face_dirpath, Recognzed_jpgnames)
+    descriptors2, link_jpgnames2 = Construct_Candidate(dirpath, Recognzed_jpgnames)
 
     tot = 0
     for des_i in descriptors2:  # <Description>: des_i是每个人脸的特征矩阵
@@ -128,12 +127,21 @@ def prepare_path_etc():
 
 if __name__ == "__main__":
 
-    dir_path = "./Accounts"
-    class_name = "123456"
-    name = "20171000718"
-
     predictor_path, face_rec_model_path = prepare_path_etc()
-
     detector, sp, facerec = prepare_detector(predictor_path, face_rec_model_path)
 
-    FaceRecognition(dir_path, class_name, name)
+    dirpath = "D:/PyFlaskLearningProjects/CheckInSystemProgram_ForUbuntu_180913"
+    filename = "kkk.jpg"
+
+    """Attention:
+        The variables following are for the host_JPG
+    """
+    dir_path = "./Accounts"
+    class_name = "123456"
+    name = "20171000719"
+
+    faceRecognzedProcess(detector, sp, facerec, dir_path, class_name, name, dirpath, filename)
+
+    """
+    >>>FaceRecognition(dir_path, class_name, name, dirpath, filename)
+    """
