@@ -20,6 +20,8 @@ def Construct_Candidate(detector, sp, facerec, host_face_dirpath, host_face_jpgn
 
     link_jpgnames = []  # 记录对应的人脸特征矩阵的所属JPG文件名
 
+    img = ''
+
     for host_face_jpgname in host_face_jpgnames:
 
         host_face_jpgpath = host_face_dirpath + '/' + host_face_jpgname
@@ -49,7 +51,24 @@ def Construct_Candidate(detector, sp, facerec, host_face_dirpath, host_face_jpgn
             # <Description>: 有可能出现图片加载不了的错误
             print("Not able to Load ! ")
 
-    return descriptors, link_jpgnames
+    return descriptors, link_jpgnames, img
+
+
+def getFaceSideRate(detector, img):
+    side_rates = []
+
+    """Attention:
+        scores值越大越接近正脸
+        
+        正常来说，只有一张脸
+        即，只有一个side_rate
+    """
+    dets, scores, idx = detector.run(img, 1)
+    for i, d in enumerate(dets):
+        print("Detection {}, dets{},score: {}, face_type:{}".format(i, d, scores[i], idx[i]))
+        side_rates.append(scores[i])  # 越先被遍历的在数组中的下标越小
+
+    return side_rates
 
 
 def faceRecognzedProcess(detector, sp, facerec, dir_path, class_name, name, dirpath, filename):
@@ -63,6 +82,7 @@ def faceRecognzedProcess(detector, sp, facerec, dir_path, class_name, name, dirp
         :param name: "2171000718"
         :return:
         """
+    side_rate = 0
 
     file_log = open("/var/www/demoapp/faceRecognzed_Running.txt", 'w')
     file_log.write("OK !\n")
@@ -75,7 +95,7 @@ def faceRecognzedProcess(detector, sp, facerec, dir_path, class_name, name, dirp
     host_face_jpgnames.append(host_face_jpgname)
 
 
-    descriptors, link_jpgnames = Construct_Candidate(detector, sp, facerec, host_face_dirpath, host_face_jpgnames)
+    descriptors, link_jpgnames, img = Construct_Candidate(detector, sp, facerec, host_face_dirpath, host_face_jpgnames)
 
     Recognzed_jpgnames = []
     Recognzed_jpgnames.append(filename)
@@ -83,7 +103,7 @@ def faceRecognzedProcess(detector, sp, facerec, dir_path, class_name, name, dirp
     Recognzeds_length = len(Recognzed_jpgnames)
 
     # 这里的描述子列表：descriptors2 储存的是签到时视频帧提取的jpg文件名，是用来得到与host 的匹配度的
-    descriptors2, link_jpgnames2 = Construct_Candidate(detector, sp, facerec, dirpath, Recognzed_jpgnames)
+    descriptors2, link_jpgnames2, img = Construct_Candidate(detector, sp, facerec, dirpath, Recognzed_jpgnames)
 
     tot = 0
     for des_i in descriptors2:  # <Description>: des_i是每个人脸的特征矩阵
@@ -94,10 +114,14 @@ def faceRecognzedProcess(detector, sp, facerec, dir_path, class_name, name, dirp
         # 统计撞脸次数
         if dist_ < 0.384:  # <Tip>: 一般欧氏距离小于0.384就可以认为是同一张脸了，值越小说明是同一张脸的可能性越大
 
+            side_rates = getFaceSideRate(detector, img)
+            if len(side_rates) > 0:
+                side_rate = side_rates[0]
+
             tot += 1
             print("tot + 1 ! ")
 
     if tot == Recognzeds_length:
-        return "Good !"
+        return "Good !", side_rate
     else:
-        return "Fail !"
+        return "Fail !", side_rate
