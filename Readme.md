@@ -18,5 +18,24 @@
 #       /var/www/demoapp/123456/20171000719/123456_20171000719_signup_1.jpg
 
 # Attention:    Testing Program Steps:
-#   First: curl http://120.79.132.142/student/create_space/123456/20171000718
+#   First: curl http://120.79.132.142/student/create_space/123456/20171000720
 #   Second: run the script named "Client.py"
+
+#   First: curl http://120.79.132.142/student/create_space/123456/20171000719
+#   Second: run the script named "Client.py"
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Attention:
+#   The following description is the testing process records
+#   First:
+#       run the script: Client_1.py
+#                           using the request order of :
+#                               r = requests.post("http://120.79.132.142/sign_up_photo_upload", data=user_info, files=files)
+#   Second:
+#       run the script: Client_1.py
+#                           using the request order of :
+#                               r = requests.post("http://120.79.132.142/checkin_photo_upload1", data=user_info, files=files)
+#   Third:
+#       run the script: Client_1.py
+#                           using the request order of :
+#                               r = requests.post("http://120.79.132.142/checkin_photo_upload2", data=user_info, files=files)
