@@ -24,7 +24,7 @@
 #   First: curl http://120.79.132.142/student/create_space/123456/20171000719
 #   Second: run the script named "Client.py"
 
-# ----------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------------
 # Attention:
 #   The following description is the testing process records
 #   First:
@@ -39,3 +39,7 @@
 #       run the script: Client_1.py
 #                           using the request order of :
 #                               r = requests.post("http://120.79.132.142/checkin_photo_upload2", data=user_info, files=files)
+#   Fourth:
+#       run the script: Client_1.py
+#                           using the request order of :
+#                               r = requests.post("http://120.79.132.142/post_function_test1", data=user_info)
