@@ -331,6 +331,29 @@ def post_function_test():
     return 'hello, ' + name + ' class_name: ' + class_name + ' IP : ' + IP + ' success'
 
 
+@app.route('/student_create_space', methods=['POST'])
+def student_create_space():
+
+    name = request.form.get('name', 'little apple')
+    class_name = request.form.get('class_name', 'little apple')
+    IP = request.remote_addr
+
+    new_path = "/var/www/demoapp/Accounts/" + class_name + "/" + name
+    if os.path.exists(new_path) == False:
+        os.makedirs(new_path)
+
+        # Create the document storing CSV File, which used to recored customs' Travel coordinations
+        new_csv_path = new_path + "/" + "coordinations"
+        os.makedirs(new_csv_path)
+
+        new_orijpg_path = new_path + "/" + "OriJPG"
+        os.makedirs(new_orijpg_path)
+
+        return 'hello, ' + name + ' class_name: ' + class_name + ' IP : ' + IP + ' success'
+    else:
+        return name + "'s space has been created before ! "
+
+
 if __name__ == "__main__":
 
     # app.run(host='127.0.0.1', port=5001)
