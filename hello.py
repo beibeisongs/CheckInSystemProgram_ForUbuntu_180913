@@ -318,6 +318,19 @@ def api_create_space(class_name, name):
         return name + "'s space has been created before ! "
 
 
+@app.route('/post_function_test1', methods=['POST'])
+def post_function_test():
+    name = request.form.get('name', 'little apple')
+    class_name = request.form.get('class_name', 'little apple')
+
+    IP = request.remote_addr
+
+    file = open("/var/www/demoapp/post_function_test.txt", 'w')
+    file.close()
+
+    return 'hello, ' + name + ' class_name: ' + class_name + ' IP : ' + IP + ' success'
+
+
 if __name__ == "__main__":
 
     # app.run(host='127.0.0.1', port=5001)
