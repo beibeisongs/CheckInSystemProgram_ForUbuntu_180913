@@ -47,3 +47,7 @@
 #       run the script: Client_1.py
 #                           using the request order of :
 #                               r = requests.post("http://120.79.132.142/student_create_space", data=json.dumps(user_info))
+#   Sixth:
+#       run the script: Client_1.py
+#                           using the request order of :
+#                               r = requests.post("http://120.79.132.142/sign_up_photo_upload/123456/20171000721", files=files)
