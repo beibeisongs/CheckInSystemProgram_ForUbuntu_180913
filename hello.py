@@ -8,6 +8,7 @@ from FaceRecognzedProcess import faceRecognzedProcess
 import dlib
 from flask import Flask, url_for
 from flask import request
+import json
 import shutil
 from werkzeug.utils import secure_filename
 import os
@@ -334,9 +335,18 @@ def post_function_test():
 @app.route('/student_create_space', methods=['POST'])
 def student_create_space():
 
-    name = request.form.get('name', 'little apple')
-    class_name = request.form.get('class_name', 'little apple')
+    # name = request.form.get('name', 'little apple')
+    # class_name = request.form.get('class_name', 'little apple')
+    # name = request.form['name']
+    # class_name = request.form['class_name']
+
     IP = request.remote_addr
+
+    data = request.get_data()
+    json_data = json.loads(data.decode("utf-8"))
+
+    name = json_data.get("name")
+    class_name = json_data.get("class_name")
 
     new_path = "/var/www/demoapp/Accounts/" + class_name + "/" + name
     if os.path.exists(new_path) == False:
