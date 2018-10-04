@@ -364,6 +364,58 @@ def student_create_space():
         return name + "'s space has been created before ! "
 
 
+@app.route('/sign_up_photo_upload/<class_name>/<name>', methods=['POST'])
+def sign_up_photo_upload(class_name, name):
+
+    new_path = "/var/www/demoapp/Accounts/" + class_name + "/" + name
+
+    if os.path.exists(new_path) == False:
+        os.makedirs(new_path)
+
+        # Create the document storing CSV File, which used to recored customs' Travel coordinations
+        new_csv_path = new_path + "/" + "coordinations"
+
+        os.makedirs(new_csv_path)
+
+        new_orijpg_path = new_path + "/" + "OriJPG"
+
+        os.makedirs(new_orijpg_path)
+
+    dirpath = '/var/www/demoapp'
+
+    upload_file = request.files['image01']
+
+    if upload_file and allowed_file(upload_file.filename):
+
+        filename = secure_filename(upload_file.filename)
+
+        upload_file.save(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename))
+
+        sign_up_photo_path = dirpath + "/student_photo/" + str(upload_file.filename)
+
+        move_to_path = dirpath + "/Accounts/" + class_name + '/' + name + '/' + "OriJPG"
+
+        shutil.move(sign_up_photo_path, move_to_path)
+
+        """Description: the orders following are used to check if the scripts have been correctly executed
+
+        >>>log_file = open('/var/www/demoapp/log.txt', mode='a')
+        >>>log_file.write("---shutil.move Ok !---")
+
+        """
+
+        IP = request.remote_addr
+
+        dir = '/var/www/demoapp/Accounts'
+
+        extractProcess(upload_file.filename, dir, class_name, name, detector)
+
+        return 'hello, ' + name + ' class_name: ' + class_name + 'IP : ' + IP + ' success'
+
+    else:
+        return 'hello, ' + request.form.get('name', 'little apple') + ' failed'
+
+
 if __name__ == "__main__":
 
     # app.run(host='127.0.0.1', port=5001)
