@@ -51,3 +51,24 @@
 #       run the script: Client_1.py
 #                           using the request order of :
 #                               r = requests.post("http://120.79.132.142/sign_up_photo_upload/123456/20171000721", files=files)
+#   Seventh:
+#       run the script: Client_1.py
+#                           using the request order of :
+#                               r = requests.post("http://120.79.132.142/route_data_upload/123456/20171000721/456/123/new")
+#   Eighth:
+#       run the script: Client_1.py
+#                           using the request order of :
+#                               r = requests.post("http://120.79.132.142/route_data_upload/123456/20171000721/456/123/middle")
+#   Nineth:
+#       run the script: Client_1.py
+#                           using the request order of :
+#                               r = requests.post("http://120.79.132.142/route_data_upload/123456/20171000721/456/123/end")
+#   Make a small api-conclusion:
+#
+#   r = requests.post("http://120.79.132.142/student_create_space", data=json.dumps(user_info))
+#   r = requests.post("http://120.79.132.142/sign_up_photo_upload/123456/20171000721", files=files)
+#   r = requests.post("http://120.79.132.142/checkin_photo_upload1", data=user_info, files=files)
+#   r = requests.post("http://120.79.132.142/checkin_photo_upload2", data=user_info, files=files)
+#   r = requests.post("http://120.79.132.142/route_data_upload/123456/20171000721/456/123/new")
+#   r = requests.post("http://120.79.132.142/route_data_upload/123456/20171000721/456/123/middle")
+#   r = requests.post("http://120.79.132.142/route_data_upload/123456/20171000721/456/123/end")
