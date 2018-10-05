@@ -5,6 +5,7 @@
 
 from ExtractMaxFace import extractProcess
 from FaceRecognzedProcess import faceRecognzedProcess
+import datetime
 import dlib
 from flask import Flask, url_for
 from flask import request
@@ -356,6 +357,9 @@ def student_create_space():
         new_csv_path = new_path + "/" + "coordinations"
         os.makedirs(new_csv_path)
 
+        new_csv_path = new_path + "/" + "coordinations_back_up"
+        os.makedirs(new_csv_path)
+
         new_orijpg_path = new_path + "/" + "OriJPG"
         os.makedirs(new_orijpg_path)
 
@@ -414,6 +418,88 @@ def sign_up_photo_upload(class_name, name):
 
     else:
         return 'hello, ' + request.form.get('name', 'little apple') + ' failed'
+
+
+def getDateStringName():
+    nowTime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # 现在的时间
+    construct1 = nowTime.split('-')
+
+    year = construct1[0]
+    month = construct1[1]
+    day = ((construct1[2]).split(' '))[0]
+
+    minPart = ((construct1[2]).split(' '))[1]
+    construct1 = minPart.split(":")
+
+    hour = construct1[0]
+    mint = construct1[1]
+    sec = construct1[2]
+
+    return year + "_" + month + "_" + day + "_" + hour + "_" + mint + "_" + sec
+
+
+@app.route('/route_data_upload/<class_name>/<name>/<lng>/<lat>/new', methods=['POST'])
+def route_data_upload_new(class_name, name, lng, lat):
+    dirpath = '/var/www/demoapp'
+    csv_dirpath = dirpath + "/Accounts/" + class_name + '/' + name + '/' + "coordinations"
+
+    dateStr = getDateStringName()
+    json_filepath = csv_dirpath + '/' + dateStr + ".json"
+
+    route_data = {}
+    route_data["lng"] = lng
+    route_data["lat"] = lat
+    a = json.dumps(route_data)
+    b = str(a) + "\n"
+    fh = open(json_filepath, mode='w')
+    fh.write(b)
+    fh.close()
+
+    return class_name + " " + name + " " + "route_data upload success ! "
+
+
+@app.route('/route_data_upload/<class_name>/<name>/<lng>/<lat>/middle', methods=['POST'])
+def route_data_upload_middle(class_name, name, lng, lat):
+    dirpath = '/var/www/demoapp'
+    csv_dirpath = dirpath + "/Accounts/" + class_name + '/' + name + '/' + "coordinations"
+
+    for dirpath, dirnames, filenames in os.walk(csv_dirpath):
+        json_filepath = csv_dirpath + '/' + filenames[0]    # Attention: There will be only one csv json file
+
+    route_data = {}
+    route_data["lng"] = lng
+    route_data["lat"] = lat
+    a = json.dumps(route_data)
+    b = str(a) + "\n"
+    fh = open(json_filepath, mode='a')
+    fh.write(b)
+    fh.close()
+
+    return class_name + " " + name + " " + "route_data upload success ! "
+
+
+@app.route('/route_data_upload/<class_name>/<name>/<lng>/<lat>/end', methods=['POST'])
+def route_data_upload_end(class_name, name, lng, lat):
+    dirpath = '/var/www/demoapp'
+    csv_dirpath = dirpath + "/Accounts/" + class_name + '/' + name + '/' + "coordinations"
+
+    for dirpath, dirnames, filenames in os.walk(csv_dirpath):
+        json_filepath = csv_dirpath + '/' + filenames[0]    # Attention: There will be only one csv json file
+
+    route_data = {}
+    route_data["lng"] = lng
+    route_data["lat"] = lat
+    a = json.dumps(route_data)
+    b = str(a) + "\n"
+    fh = open(json_filepath, mode='a')
+    fh.write(b)
+    fh.close()
+
+    old_path = json_filepath
+    new_path = '/var/www/demoapp' + "/Accounts/" + class_name + '/' + name + '/' + "coordinations_back_up"
+    shutil.move(old_path, new_path)
+
+    return class_name + " " + name + " " + "route_data upload success ! "
 
 
 if __name__ == "__main__":
