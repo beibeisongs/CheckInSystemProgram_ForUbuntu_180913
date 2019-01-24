@@ -1,0 +1,172 @@
+root@iZwz99voyoyqkwpnajub34Z:~# sudo apt-get update
+
+root@iZwz99voyoyqkwpnajub34Z:~# sudo apt-get -y install mysql-server mysql-client
+
+username:root
+password:270127
+
+root@iZwz99voyoyqkwpnajub34Z:~# mysql –u root –p
+270127
+\q
+
+root@iZwz99voyoyqkwpnajub34Z:~# sudo apt-get –y install nginx
+
+root@iZwz99voyoyqkwpnajub34Z:~# service nginx start
+
+root@iZwz99voyoyqkwpnajub34Z:~#
+sudo update-alternatives --install /usr/bin/python python /usr/bin/python2 100
+
+root@iZwz99voyoyqkwpnajub34Z:~#
+sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 150
+
+root@iZwz99voyoyqkwpnajub34Z:~#
+sudo apt-get install python3-pip                                           
+
+root@iZwz99voyoyqkwpnajub34Z:~#
+sudo apt-get install python3-dev
+
+root@iZwz99voyoyqkwpnajub34Z:~#
+sudo pip3 install virtualenv
+
+root@iZwz99voyoyqkwpnajub34Z:~#
+sudo mkdir /var/www
+root@iZwz99voyoyqkwpnajub34Z:~#
+sudo mkdir /var/www/demoapp
+
+root@iZwz99voyoyqkwpnajub34Z:~#
+cd /var/www/demoapp
+
+virtualenv venv
+
+source /var/www/demoapp/venv/bin/activate
+
+pip install flask
+pip install uwsgi
+
+root@iZwz99voyoyqkwpnajub34Z:~#
+vim hello.py
+使用下面的代码创建hello.py文件： 
+from flask import Flask
+app = Flask(__name__)
+
+@app.route("/")
+def hello():
+return "Hello World!"
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5001)
+让我们执行我们刚创建的脚本： 
+python hello.py
+
+配置Nginx 
+首先删除掉Nginx的默认配置文件： 
+sudo rm /etc/nginx/sites-enabled/default 
+
+vim /var/www/demoapp/demoapp_nginx.conf
+创建一个我们应用使用的新配置文件
+/var/www/demoapp/demoapp_nginx.conf： 
+server {
+    listen      80;
+    server_name 127.79.132.142;
+    charset     utf-8;
+    client_max_body_size 75M;
+
+    location / { try_files $uri @yourapplication; }
+    location @yourapplication {
+        include uwsgi_params;
+        uwsgi_pass unix:/var/www/demoapp/demoapp_uwsgi.sock;
+    }
+}
+将刚建立的配置文件使用符号链接到Nginx配置文件文件夹中，重启Nginx： 
+sudo ln -s /var/www/demoapp/demoapp_nginx.conf /etc/nginx/conf.d/
+
+sudo /etc/init.d/nginx restart
+
+配置uWSGI 
+创建一个新的uWSGI配置文件/var/www/demoapp/demoapp_uwsgi.ini： 
+[uwsgi]
+
+#application's base folder
+base = /var/www/demoapp
+
+#python module to import
+app = hello
+module = %(app)
+
+home = %(base)/venv
+pythonpath = %(base)
+
+#socket file's location
+socket = /var/www/demoapp/iemoapp_uwsgi.sock
+
+#permissions for the socket file
+chmod-socket    = 666
+
+#the variable that holds a flask application inside the module imported at line #6
+callable = app
+
+#location of log files
+logto = /var/log/uwsgi/server.log
+创建一个新文件夹存放uWSGI日志： 
+sudo mkdir -p /var/log/uwsgi
+执行uWSGI，用新创建的配置文件作为参数： 
+uwsgi --ini /var/www/demoapp/demoapp_uwsgi.ini
+
+这时，如果出现了Try：apt install <package> 则说明uwsgi没有装好
+
+则需要：
+
+deactivate	# 退出目前的虚拟环境
+
+pip install uwsgi
+
+uwsgi --ini /var/www/demoapp/demoapp_uwsgi.ini
+
+然后就可以了
+
+
+接下来访问你的服务器，现在Nginx可以连接到uWSGI进程了： 
+我们现在基本完成了，唯一剩下的事情是配置uWSGI在后台运行
+这是uWSGI Emperor的职责。 
+
+先执行命令：locate uwsgi
+得到uwsgi的可执行文件的路径为：/var/www/demoapp/venv/bin/uwsgi
+
+创建目录及文件：/etc/systemd/system/emperor.uwsgi.service
+文件内容如下：
+
+[Unit]
+Description=uWSGI Emperor
+After=syslog.target
+
+[Service]
+
+ExecStart=/var/www/demoapp/venv/bin/uwsgi --ini /etc/uwsgi/emperor.ini
+# Requires systemd version 211 or newer
+RuntimeDirectory=uwsgi
+Restart=always
+KillSignal=SIGQUIT
+Type=notify
+StandardError=syslog
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.target
+
+创建目录及文件名：etc/uwsgi/emperor.ini
+文件内容如下：
+
+[uwsgi]
+emperor = /etc/uwsgi/vassals
+uid = root
+gid = root
+
+创建目录：/etc/uwsgi/vassals
+
+执行命令：sudo ln -s /var/www/demoapp/demoapp_uwsgi.ini /etc/uwsgi/vassals
+
+执行命令：systemctl enable emperor.uwsgi.service
+
+执行命令：systemctl start emperor.uwsgi.service
+
+执行命令：systemctl stop emperor.uwsgi.service
